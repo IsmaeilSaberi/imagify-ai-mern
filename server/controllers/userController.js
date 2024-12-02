@@ -7,6 +7,7 @@ const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
+      console.log(name, email, password);
       return res.json({ success: false, message: "Missing details" });
     }
 
@@ -54,3 +55,4 @@ const loginUser = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+export { registerUser, loginUser };
