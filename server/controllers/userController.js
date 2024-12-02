@@ -7,7 +7,6 @@ const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      console.log(name, email, password);
       return res.json({ success: false, message: "Missing details" });
     }
 
