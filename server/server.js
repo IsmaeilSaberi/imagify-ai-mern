@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// await connectDB();
+await connectDB();
 
 app.get("/", (req, res) => {
   res.send("API working");
