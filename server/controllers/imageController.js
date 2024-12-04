@@ -1,6 +1,6 @@
 import userModel from "../models/userModel.js";
 import FormData from "formdata";
-import axios from "axios";
+import { Buffer } from "buffer";
 
 const generateImage = async (req, res) => {
   try {
@@ -11,7 +11,6 @@ const generateImage = async (req, res) => {
     if (!user || !prompt) {
       return res.json({ success: false, message: "Missing details!" });
     }
-
     if (user.creditBalance === 0 || userModel.creditBalance < 0) {
       return res.json({
         success: false,
@@ -23,30 +22,34 @@ const generateImage = async (req, res) => {
     const formData = new FormData();
     formData.append("prompt", prompt);
 
-    const { data } = await axios.post(
-      "https://clipdrop-api.co/text-to-image/v1",
+    await fetch("https://api.clipdrop.co/endpoint", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.CLIPDROP_API,
+      },
       formData,
-      {
-        headers: {
-          "x-api-key": process.env.CLIPDROP_API,
-        },
-        responseType: "arraybuffer",
-      }
-    );
+    })
+      .then((response) => response.arrayBuffer())
+      .then((buffer) => {
+        console.log(buffer);
+        const base64Image = Buffer.from(buffer, "binary").toString("base64");
+        console.log("base64: ", base64Image);
+        const resultImage = `data:image/png;base64,${base64Image}`;
 
-    const base64Image = Buffer.from(data, "binary").toString("base64");
-    const resultImage = `data:image/png;base64,${base64Image}`;
-
-    await userModel.findByIdAndUpdate(user._id, {
-      creditBalance: user.creditBalance - 1,
-    });
-
-    res.json({
-      success: true,
-      message: "Image generated",
-      creditBalance: user.creditBalance - 1,
-      resultImage,
-    });
+        console.log("result: ", resultImage);
+        res.json({
+          success: true,
+          message: "Image generated",
+          creditBalance: user.creditBalance - 1,
+          resultImage,
+        });
+      })
+      .then(async (data) => {
+        await userModel.findByIdAndUpdate(user._id, {
+          creditBalance: user.creditBalance - 1,
+        });
+      })
+      .catch((error) => console.error("Error:", error));
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: error.message });
