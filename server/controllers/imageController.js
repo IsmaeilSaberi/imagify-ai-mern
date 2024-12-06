@@ -31,9 +31,13 @@ const generateImage = async (req, res) => {
     })
       .then((response) => response.arrayBuffer())
       .then((buffer) => {
-        console.log(buffer);
-        const base64Image = Buffer.from(buffer, "binary").toString("base64");
+        // const base64Image = Buffer.from(buffer, "binary").toString("base64");
+        const base64Image = btoa(
+          String.fromCharCode(...new Uint8Array(buffer))
+        ); // Convert buffer to base64
         console.log("base64: ", base64Image);
+
+        // const resultImage = `data:image/png;base64,${base64Image}`;
         const resultImage = `data:image/png;base64,${base64Image}`;
 
         console.log("result: ", resultImage);

@@ -1,14 +1,35 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { motion } from "motion/react";
+import { AppContext } from "../context/AppContext";
+import { Buffer } from "buffer";
 
 const Result = () => {
   const [image, setImage] = useState(assets.sample_img_1);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
+  const [decodedContent, setDecodedContent] = useState("");
 
-  const onsubmitHandler = async (e) => {};
+  const { generateImage } = useContext(AppContext);
+
+  const onsubmitHandler = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (input) {
+      const image = await generateImage(input);
+      // const decodedHtml = Buffer.from(image, "base64").toString("utf-8");
+      // const decodedHtml = Buffer.from(image, "base64").toString("utf-8");
+      // setDecodedContent(decodedHtml);
+      // console.log(decodedHtml);
+      if (image) {
+        setIsImageLoaded(true);
+        setImage(image);
+      }
+    }
+    setLoading(false);
+  };
 
   return (
     <motion.form
